@@ -1,16 +1,23 @@
 ---
 name: oxylabs-web-api
-description: Search the live web and read any web page through the Oxylabs Web API. Use when a task needs current information, a source you cannot recall, or the contents of a specific URL — including JavaScript-heavy, paywalled-by-bot-check, or geo-restricted pages that a plain fetch cannot retrieve.
+description: Search the live web and read any web page through the Oxylabs Web API, via its MCP tools or directly over HTTP. Use when a task needs current information, a source you cannot recall, or the contents of a specific URL — including JavaScript-heavy, paywalled-by-bot-check, or geo-restricted pages that a plain fetch cannot retrieve.
 ---
 
 # Oxylabs Web API
 
 Two endpoints. `search` finds URLs, `scrape` reads them. Base URL `https://webapi.oxylabs.io`.
 
+Three ways to call them, in order of preference: the **MCP tools** if the server is
+connected, the **helper script**, then **curl**.
+
 ## Setup check
 
-The key lives in `OXYLABS_API_KEY`. If it is unset, stop and ask the user for it rather
-than guessing — every call will 401 without it.
+If the `oxylabs-web-api` MCP tools are in your tool list, use them — the server holds the
+key, and you need nothing in your shell. Check for a `search`/`scrape` pair from that
+server before reaching for curl.
+
+Otherwise the key lives in `OXYLABS_API_KEY`. If it is unset, stop and ask the user for it
+rather than guessing — every call will 401 without it.
 
 ```bash
 [ -n "$OXYLABS_API_KEY" ] && echo "key present" || echo "ask the user for OXYLABS_API_KEY"
@@ -28,6 +35,90 @@ this part for them:
 
 A key that 401s despite looking valid is usually a key for a different Oxylabs product —
 worth checking before debugging anything else.
+
+## Through the MCP tools
+
+[web-api-mcp](https://github.com/oxylabs/web-api-mcp) exposes the same two endpoints as
+typed tools. Prefer them when they are available: no key in your shell, no JSON to
+hand-assemble, and oversized pages are handled for you.
+
+| Tool | Use it for |
+|---|---|
+| `search(query, max_results, location)` | Find URLs. Same fields as `POST /v1/search`. |
+| `scrape(url, format, location, device, run_js, check_empty_geo)` | Read one page. `format` is `"markdown"` (default) or `"html"`. |
+| `extract(url, prompt, location, run_js)` | Named fields as JSON instead of a page to read. |
+| `check_scrape(job_id)` | Collect a JavaScript-rendering job. |
+| `read_scraped(path, offset, length)` | Walk a large page that was written to disk. |
+| `list_scrapers(endpoint)` | List target-specific endpoints, or describe one's parameters. |
+| `scrape_target(endpoint, params)` | Call one of those endpoints. |
+
+Every parameter carries the meaning it has in the HTTP tables below — `location` on
+`scrape` is still a country code, `location` on `search` is still a place name.
+
+### JavaScript rendering comes back as a job
+
+`run_js` pages take at least 30 seconds, so the tool returns a job id instead of content:
+
+```jsonc
+{ "job_id": "9f3c1a20b7d4", "status": "running", "url": "https://example.com" }
+```
+
+Wait ~30 seconds, call `check_scrape(job_id)`, and keep polling every ~15 seconds while it
+says `running`. **Do other work between polls** — scrape another source, draft the parts of
+the answer you already have. Idling on the poll is the whole cost of this being async.
+
+Only reach for `run_js` when a plain `scrape` came back empty or skeletal. Most pages do
+not need it, and it is slower and heavier for the ones that don't.
+
+### When a page comes back empty
+
+A page that renders client-side returns a shell to a plain `scrape`: a heading, a nav bar,
+nothing to read. The tool flags that for you rather than leaving you to guess:
+
+```jsonc
+{
+  "content": "# Loading…",
+  "content_thin": { "visible_chars": 9, "reason": "almost no text", "note": "…" }
+}
+```
+
+When you see `content_thin`, retry **the same call** with `run_js=True` — once. Then poll
+`check_scrape` as above.
+
+The rules that keep this from becoming a habit:
+
+- **Don't send `run_js` pre-emptively.** Most pages don't need it, and it turns a
+  two-second read into a thirty-second job. Plain scrape first, always.
+- **Retry once, not twice.** If the rendered page is also empty, the content is behind a
+  login, a paywall or a hard block. Say so.
+- **A short page is allowed to be short.** No flag means the page really is that brief —
+  take it at face value.
+- **Never fill the gap from memory.** An unreadable page is a reported dead end, not an
+  invitation to recall what it probably said.
+
+### `extract` costs extra and asks the user
+
+`extract` has a model parse the page, which is billed above a plain `scrape`, so the server
+asks the user to approve every run. That makes it a deliberate choice, not a default:
+
+- Reading a page to answer a question → `scrape`. You were going to read it anyway.
+- Needing the same fields off many pages, in a shape you can compute on → `extract`.
+
+If the user declines, **do not retry it**. Scrape the page and read it, or ask them what
+they would rather do.
+
+### Large pages
+
+A page over the inline limit comes back as a preview plus `content_offloaded.path`. Read it
+with `read_scraped(path, offset=0)`, then keep calling with the `next_offset` it returns
+until `eof` is true — and stop as soon as you have the answer. Pulling a whole 100k-token
+page in because it was offered is the mistake this is designed to prevent.
+
+### Target-specific endpoints
+
+`list_scrapers()` for what exists, `list_scrapers("<endpoint>")` for its parameters and
+types, then `scrape_target(endpoint, params)` to call it. Read the parameters rather than
+guessing them — that response is more current than any documentation, including this file.
 
 ## Search
 
@@ -79,6 +170,13 @@ convert it yourself — that burns context on markup you were going to throw awa
 Need particular fields rather than a whole page? `output: ["json"]` with a `json.prompt`
 returns them structured, no selectors to maintain.
 
+**If the Markdown comes back nearly empty, the page rendered client-side.** Over raw HTTP
+nothing flags this for you, so check it yourself: a couple of hundred characters, a bare
+heading, or a "you need to enable JavaScript" line means you got the shell, not the page.
+Retry the same request once with `run_js: true` — it is much slower, which is why it is not
+the default — and if that is empty too, report the page as unreadable rather than working
+from memory.
+
 Note the two endpoints spell geo differently: `/v1/search` takes a place name
 (`"Germany"`), `/v1/scrape` takes a country code (`"DE"`).
 
@@ -95,7 +193,8 @@ curl -sS -X OPTIONS https://webapi.oxylabs.io/v1/scrape -H "Authorization: Beare
 
 ## Helper script
 
-`scripts/web_api.py` wraps both endpoints with retries on 429/5xx and prints JSON:
+When the MCP tools are not available, `scripts/web_api.py` wraps both endpoints with
+retries on 429/5xx and prints JSON:
 
 ```bash
 python scripts/web_api.py search "who acquired figma" --max-results 5
@@ -119,6 +218,9 @@ want most of the time.
 | 5xx | Upstream trouble | Retry up to 3 times with backoff, then report. |
 
 A 400 is a bug in your request. Fix the field the response names instead of retrying.
+
+The MCP tools surface these as plain error messages with the offending field already
+pulled out, so read the message rather than re-sending the call to see what happens.
 
 ## Working rules
 

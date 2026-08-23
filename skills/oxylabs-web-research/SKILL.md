@@ -25,6 +25,28 @@ endpoint mechanics — this skill is about the method.
    say which is more authoritative and why.
 7. **Answer, then cite.** Conclusion first, sources under it.
 
+## Running the loop through MCP tools
+
+If the `oxylabs-web-api` MCP server is connected, the loop maps straight onto its tools —
+`search` for step 2, `scrape` for step 4, `read_scraped` when a page comes back offloaded.
+Three habits matter for research specifically:
+
+- **`extract` is not part of the default loop.** It is billed above a scrape and asks the
+  user every time. Reading a page you were going to read anyway is a `scrape`. Reach for
+  `extract` only when you need the same fields off several pages in a comparable shape —
+  a pricing table across five vendors, say. If the user declines it, read the page instead.
+- **A `run_js` scrape returns a job id, not content.** Poll `check_scrape` after ~30s, then
+  every ~15s — and scrape your other sources while you wait rather than idling. Parallel
+  sources are exactly what the wait is for.
+- **An empty page is a source that hasn't been read yet.** A `content_thin` flag (or, over
+  raw HTTP, a near-empty result) means the page rendered client-side — retry it once with
+  `run_js=True` before you decide the source is a dead end. If the render is empty too, the
+  source goes under *Uncertain* with what you tried. A page you couldn't read is never a
+  licence to answer from memory.
+- **Offloaded pages are read in chunks.** Walk `read_scraped` from offset 0 and stop when
+  you have the fact. Reading a whole page you only needed one number from is the same
+  mistake as pasting it into the answer.
+
 ## When to stop
 
 Stop when the next scrape would not change the answer. Three good sources beats ten
@@ -58,3 +80,8 @@ skimmed ones. If two independent primary sources agree, that fact is done.
 Pricing, availability and rankings change by country. When the question is geographic,
 pass `location` and say which locale the answer reflects — an unqualified "it costs $9"
 is wrong somewhere.
+
+`search` takes a place name (`"Germany"`), `scrape` takes a country code (`"DE"`) — the
+same asymmetry the tools inherit from the API. On `scrape`, `check_empty_geo=True` turns a
+silent wrong-country result into an error, which is what you want when the whole answer
+hinges on the locale.

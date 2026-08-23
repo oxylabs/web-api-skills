@@ -5,7 +5,7 @@ for live web search and page reading.
 
 | Skill | Use it for |
 |---|---|
-| `oxylabs-web-api` | Endpoint mechanics — parameters, errors, retries, and a CLI helper |
+| `oxylabs-web-api` | Mechanics — the MCP tools, endpoint parameters, errors, retries, and a CLI helper |
 | `oxylabs-web-research` | The research method — search, pick sources, read, cite |
 
 ## Install
@@ -64,9 +64,11 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
 ## Prefer tools over a CLI?
 
 The same two endpoints are available as MCP tools:
-[web-api-mcp](https://github.com/oxylabs/web-api-mcp). Skills and MCP are
-complementary — MCP gives the agent typed tools, skills give it the judgment for when and
-how to use them.
+[web-api-mcp](https://github.com/oxylabs/web-api-mcp) — `search`, `scrape`, `extract`,
+`check_scrape`, `read_scraped`, `list_scrapers` and `scrape_target`. Skills and MCP are
+complementary: MCP gives the agent typed tools, skills give it the judgment for when and
+how to use them. Both skills cover the tools as well as the HTTP endpoints, and tell the
+agent to prefer the tools when the server is connected.
 
 ## License
 

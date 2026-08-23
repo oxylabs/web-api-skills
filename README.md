@@ -1,6 +1,6 @@
 # Oxylabs Web API — Agent Skills
 
-Skills that teach a coding agent to use the [Oxylabs Web API](https://github.com/nedasvi/project-search-docs)
+Skills that teach a coding agent to use the [Oxylabs Web API](https://github.com/oxylabs/gitbook-web-api)
 for live web search and page reading.
 
 | Skill | Use it for |
@@ -11,8 +11,8 @@ for live web search and page reading.
 ## Install
 
 ```bash
-git clone https://github.com/nedasvi/project-search-skills.git
-cd project-search-skills
+git clone https://github.com/oxylabs/web-api-skills.git
+cd web-api-skills
 ./install.sh              # ~/.claude/skills — available in every project
 ./install.sh --project    # ./.claude/skills — this repo only
 export OXYLABS_API_KEY=your_api_key_here
@@ -64,7 +64,7 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
 ## Prefer tools over a CLI?
 
 The same two endpoints are available as MCP tools:
-[project-search-mcp](https://github.com/nedasvi/project-search-mcp). Skills and MCP are
+[web-api-mcp](https://github.com/oxylabs/web-api-mcp). Skills and MCP are
 complementary — MCP gives the agent typed tools, skills give it the judgment for when and
 how to use them.
 

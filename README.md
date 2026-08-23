@@ -18,6 +18,13 @@ cd project-search-skills
 export OXYLABS_API_KEY=your_api_key_here
 ```
 
+### Getting an API key
+
+1. Log in to the [Oxylabs dashboard](https://dashboard.oxylabs.io).
+2. Create a **Web API** instance — keys from other Oxylabs products don't work here.
+3. Generate an API key on that instance.
+4. `export OXYLABS_API_KEY=<key>`
+
 Start a new session and run `/skills` to confirm both loaded. Re-run `install.sh` to upgrade.
 
 ### Manual install

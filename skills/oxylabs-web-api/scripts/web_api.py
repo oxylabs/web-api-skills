@@ -3,7 +3,10 @@
 
 Usage:
     python web_api.py search "query" [--max-results 10] [--location Germany] [--scrape-top N]
-    python web_api.py scrape "https://example.com"
+    python web_api.py scrape "https://example.com" [--format markdown|html] [--location DE]
+
+Scrapes request Markdown from the API by default — it renders server-side, so nothing is
+converted here.
 
 Reads OXYLABS_API_KEY from the environment. Prints JSON on stdout, diagnostics on stderr.
 Exit codes: 0 ok, 1 request failed, 2 bad usage or missing key.
@@ -86,12 +89,20 @@ def do_search(args: argparse.Namespace) -> dict:
         for url in urls:
             print(f"scraping {url}", file=sys.stderr)
             try:
-                pages.append({"url": url, "page": call("/v1/scrape", {"url": url})})
+                pages.append({"url": url, "page": call("/v1/scrape", scrape_body(url))})
             except SystemExit:
                 # One dead URL should not lose the results we already have.
                 pages.append({"url": url, "error": "scrape failed"})
         out["scraped"] = pages
     return out
+
+
+def scrape_body(url: str, fmt: str = "markdown", location: str | None = None) -> dict:
+    """Request body for /v1/scrape. `output` is a list; the API renders the format."""
+    body: dict = {"url": url, "output": [fmt]}
+    if location:
+        body["location"] = location
+    return body
 
 
 def main() -> None:
@@ -111,6 +122,13 @@ def main() -> None:
 
     p = sub.add_parser("scrape", help="read one URL")
     p.add_argument("url")
+    p.add_argument(
+        "--format",
+        choices=["markdown", "html"],
+        default="markdown",
+        help="output format the API renders (default markdown)",
+    )
+    p.add_argument("--location", help='two-letter country code, e.g. "DE"')
 
     args = parser.parse_args()
     if args.cmd == "search":
@@ -118,7 +136,7 @@ def main() -> None:
     else:
         if not args.url.startswith(("http://", "https://")):
             die("url must be an absolute http(s) URL", 2)
-        result = call("/v1/scrape", {"url": args.url})
+        result = call("/v1/scrape", scrape_body(args.url, args.format, args.location))
 
     json.dump(result, sys.stdout, indent=2, ensure_ascii=False)
     print()

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "oxylabs-web-api",
+  "owner": {
+    "name": "Oxylabs",
+    "email": "support@oxylabs.io",
+    "url": "https://oxylabs.io"
+  },
+  "description": "Oxylabs Web API — live web search and page reading for agents.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "oxylabs-web-api",
+      "source": "./",
+      "description": "Search the live web and read any page: real SERP results from the target country, JS-heavy and bot-protected pages included, Markdown rendered server-side.",
+      "author": {
+        "name": "Oxylabs",
+        "url": "https://oxylabs.io"
+      },
+      "keywords": [
+        "oxylabs",
+        "web-api",
+        "search",
+        "scraping",
+        "serp",
+        "research",
+        "anti-bot",
+        "mcp"
+      ],
+      "category": "scraping"
+    }
+  ]
+}

@@ -5,8 +5,9 @@ for live web search and page reading.
 
 | Skill | Use it for |
 |---|---|
-| `oxylabs-web-api` | Mechanics — the MCP tools, endpoint parameters, errors, retries, and a CLI helper |
+| `oxylabs-web-api` | Mechanics — the MCP tools, endpoint parameters, latency, errors, retries, and a CLI helper |
 | `oxylabs-web-research` | The research method — search, pick sources, read, cite |
+| `migrate-to-oxylabs` | Porting off Tavily, Exa, Firecrawl, Perplexity, Brave or Linkup |
 
 ## Install
 
@@ -17,6 +18,14 @@ cd web-api-skills
 ./install.sh --project    # ./.claude/skills — this repo only
 export OXYLABS_API_KEY=your_api_key_here
 ```
+
+The repo is also a Claude Code plugin — `.claude-plugin/marketplace.json` and
+`plugin.json` at the root — so it can be added as a marketplace instead of copied by hand.
+
+If you use the [MCP server](https://github.com/oxylabs/web-api-mcp), you may not need to
+install anything: it bundles `oxylabs-web-api` and serves it over MCP as the
+`oxylabs://skill/web-api` resource and the `web_research` prompt. Install the skills here
+when you want them loaded without the server, or when you want `migrate-to-oxylabs`.
 
 ### Getting an API key
 
@@ -41,12 +50,17 @@ their own skills directory.
 ## Layout
 
 ```
+.claude-plugin/
+├── marketplace.json              # add this repo as a Claude Code marketplace
+└── plugin.json
 skills/
 ├── oxylabs-web-api/
 │   ├── SKILL.md
 │   └── scripts/web_api.py        # search / scrape / search-then-scrape, with retries
-└── oxylabs-web-research/
-    └── SKILL.md
+├── oxylabs-web-research/
+│   └── SKILL.md
+└── migrate-to-oxylabs/
+    └── SKILL.md                  # parameter and response maps for six providers
 ```
 
 ## The helper script standalone

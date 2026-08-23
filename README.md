@@ -22,6 +22,11 @@ export OXYLABS_API_KEY=your_api_key_here
 The repo is also a Claude Code plugin — `.claude-plugin/marketplace.json` and
 `plugin.json` at the root — so it can be added as a marketplace instead of copied by hand.
 
+`.mcp.json` at the root wires up the [MCP server](https://github.com/oxylabs/web-api-mcp)
+alongside the skills, so a project that adds this repo gets the tools and the method
+together. It expects `oxylabs-web-api-mcp` on `PATH` and `OXYLABS_API_KEY` in the
+environment.
+
 If you use the [MCP server](https://github.com/oxylabs/web-api-mcp), you may not need to
 install anything: it bundles `oxylabs-web-api` and serves it over MCP as the
 `oxylabs://skill/web-api` resource and the `web_research` prompt. Install the skills here
@@ -50,6 +55,7 @@ their own skills directory.
 ## Layout
 
 ```
+.mcp.json                         # MCP server config, so skills and tools install together
 .claude-plugin/
 ├── marketplace.json              # add this repo as a Claude Code marketplace
 └── plugin.json

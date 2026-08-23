@@ -1,6 +1,10 @@
 ---
 name: migrate-to-oxylabs
 description: Move a codebase from another web search or scraping API — Tavily, Exa, Firecrawl, Perplexity Search, Brave Search, Linkup — to the Oxylabs Web API. Use when asked to migrate, switch, replace, swap out, rip out or evaluate against one of those providers, when a repo already calls one of their endpoints and someone wants Oxylabs instead, or when someone asks what the equivalent parameter or response field is. Do NOT use it for the first integration of a greenfield project — that is `oxylabs-web-api`.
+user-invocable: true
+argument-hint: <provider to migrate from>
+metadata:
+  author: oxylabs
 ---
 
 # Migrating to the Oxylabs Web API

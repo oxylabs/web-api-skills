@@ -10,7 +10,7 @@ metadata:
 # Migrating to the Oxylabs Web API
 
 Two endpoints replace whatever is there: `POST /v1/search` finds URLs, `POST /v1/scrape`
-reads them. Base URL `https://webapi.oxylabs.io`, auth `Authorization: Bearer $OXYLABS_API_KEY`.
+reads them. Base URL `https://webapi.oxylabs.io`, auth `Authorization: Bearer $OXYLABS_WEB_API_KEY`.
 
 Read [`oxylabs-web-api`](../oxylabs-web-api/SKILL.md) for the endpoints themselves. This
 file is only about getting off the old one.
@@ -127,8 +127,15 @@ Every provider returns a list of results with a title, a snippet and a URL. The 
 `shortDescription` catches people out — it is the field most often missed in a port, and the
 symptom is empty snippets rather than an error.
 
-Oxylabs also returns `related_searches[]` and `related_questions[]`, and a
-`metadata.request_id` worth logging: it is what support traces a call by.
+Oxylabs also returns `related_searches[]` (`query`, `link`) and `related_questions[]`
+(`question`, plus nullable `title`, `link`, `snippet`), and a `metadata.request_id` worth
+logging: it is what support traces a call by.
+
+Two shape traps when you port the response handling: none of `results`, `related_searches`
+or `related_questions` is a required field, so an absent array means the same as an empty
+one — providers that always send `results` let you write `body["results"]`, here you want
+`body.get("results", [])`. And `query` is capped at 2048 characters, `location` at 256;
+providers with no cap will hand you queries that now `400`.
 
 ## What does not port
 

@@ -3,7 +3,7 @@
     "oxylabs-web-api": {
       "command": "oxylabs-web-api-mcp",
       "env": {
-        "OXYLABS_API_KEY": "${OXYLABS_API_KEY}"
+        "OXYLABS_WEB_API_KEY": "${OXYLABS_WEB_API_KEY}"
       }
     }
   }

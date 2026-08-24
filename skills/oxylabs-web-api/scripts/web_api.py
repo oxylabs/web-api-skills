@@ -8,7 +8,7 @@ Usage:
 Scrapes request Markdown from the API by default — it renders server-side, so nothing is
 converted here.
 
-Reads OXYLABS_API_KEY from the environment. Prints JSON on stdout, diagnostics on stderr.
+Reads OXYLABS_WEB_API_KEY from the environment. Prints JSON on stdout, diagnostics on stderr.
 Exit codes: 0 ok, 1 request failed, 2 bad usage or missing key.
 """
 
@@ -34,9 +34,9 @@ def die(msg: str, code: int = 1) -> None:
 
 
 def api_key() -> str:
-    key = os.environ.get("OXYLABS_API_KEY", "").strip()
+    key = os.environ.get("OXYLABS_WEB_API_KEY", "").strip()
     if not key:
-        die("OXYLABS_API_KEY is not set. Ask the user for a key; do not guess one.", 2)
+        die("OXYLABS_WEB_API_KEY is not set. Ask the user for a key; do not guess one.", 2)
     return key
 
 
@@ -78,6 +78,10 @@ def call(path: str, payload: dict, method: str = "POST") -> dict:
 def do_search(args: argparse.Namespace) -> dict:
     if not 1 <= args.max_results <= 20:
         die("--max-results must be between 1 and 20", 2)
+    if not 1 <= len(args.query) <= 2048:
+        die("query must be between 1 and 2048 characters", 2)
+    if args.location and len(args.location) > 256:
+        die("--location must be 256 characters or fewer", 2)
     payload = {"query": args.query, "max_results": args.max_results}
     if args.location:
         payload["location"] = args.location

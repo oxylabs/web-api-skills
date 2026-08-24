@@ -41,7 +41,7 @@ maps to `max_results` (1–20, default 10). The rest:
 |---|---|---|
 | `max_results` | `max_results` | Tavily allows more than 20; cap it |
 | `country` | `location` | Tavily takes a country, Oxylabs takes a place name — `"Germany"`, or `"New York,New York,United States"` |
-| `search_depth` | — | No depth ladder. One search, real SERP |
+| `search_depth` | — | No depth ladder. One search |
 | `include_answer` | — | **No synthesised answer.** Read the sources and write the answer yourself, with citations |
 | `include_raw_content` | `POST /v1/scrape` | A separate call per URL, which is also what makes it cheap when you don't need it |
 | `include_domains` / `exclude_domains` | — | Not supported. Filter `results[].url` client-side |
@@ -59,7 +59,7 @@ maps to `max_results` (1–20, default 10). The rest:
 | `includeDomains` / `excludeDomains` | — | Client-side |
 | `startPublishedDate` / `endPublishedDate` | — | Not supported |
 | `category` | — | Not supported |
-| Semantic/neural matching | — | **This is the real difference.** Oxylabs returns what the search engine returns. Keyword-shaped queries win; sentence-shaped ones do not |
+| Semantic/neural matching | — | **This is the real difference.** Oxylabs matches the query as written rather than reranking on meaning. Keyword-shaped queries win; sentence-shaped ones do not |
 
 ### Firecrawl → `/v1/search` + `/v1/scrape`
 
@@ -158,7 +158,7 @@ worse:
 
 Worth writing into the migration PR rather than asserting:
 
-- **Real SERP results**, from the search engine, in the country you asked for — not an index
+- **Results ranked for the country you asked for**, not a semantic match on your phrasing
   someone else rebuilt. Verify with the same query at two `location` values.
 - **Pages a plain client cannot fetch.** JS-heavy, bot-protected, geo-gated. Verify against a
   URL the old provider returned empty.

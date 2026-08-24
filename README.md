@@ -24,8 +24,10 @@ The repo is also a Claude Code plugin — `.claude-plugin/marketplace.json` and
 
 `.mcp.json` at the root wires up the [MCP server](https://github.com/oxylabs/web-api-mcp)
 alongside the skills, so a project that adds this repo gets the tools and the method
-together. It expects `oxylabs-web-api-mcp` on `PATH` and `OXYLABS_WEB_API_KEY` in the
-environment.
+together. It expects `oxylabs-web-api-mcp` on `PATH` (`uv tool install
+git+https://github.com/oxylabs/web-api-mcp`). The key can come from the environment or from
+a `.env` in the project — the server fills any unset `OXYLABS_*` variable from there, so
+you do not have to put the key in the config file.
 
 If you use the [MCP server](https://github.com/oxylabs/web-api-mcp), you may not need to
 install anything: it bundles `oxylabs-web-api` and serves it over MCP as the

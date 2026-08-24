@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import sys
 import time
 import urllib.error
@@ -55,11 +56,17 @@ def call(path: str, payload: dict, method: str = "POST") -> dict:
         )
         try:
             with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-                return json.loads(resp.read())
+                body = json.loads(resp.read())
+            # A 2xx is not the whole story: "faulted" in the envelope means the work
+            # failed upstream even though the status code says otherwise.
+            if isinstance(body, dict) and body.get("status") == "faulted":
+                die(f"{path} returned a 2xx with status=faulted: {str(body)[:600]}")
+            return body
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", "replace")[:600]
             if exc.code in RETRY_STATUSES and attempt < MAX_ATTEMPTS:
-                wait = 2**attempt
+                # Full jitter, so concurrent callers do not all retry on the same second.
+                wait = round(random.uniform(0, 2**attempt), 1)
                 print(f"{path} -> {exc.code}, retrying in {wait}s", file=sys.stderr)
                 time.sleep(wait)
                 continue
@@ -68,7 +75,7 @@ def call(path: str, payload: dict, method: str = "POST") -> dict:
             die(f"{path} -> HTTP {exc.code}: {detail}")
         except urllib.error.URLError as exc:
             if attempt < MAX_ATTEMPTS:
-                time.sleep(2**attempt)
+                time.sleep(random.uniform(0, 2**attempt))
                 continue
             die(f"Could not reach {BASE_URL}{path}: {exc.reason}")
     die(f"{path} failed after {MAX_ATTEMPTS} attempts")

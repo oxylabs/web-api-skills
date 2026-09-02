@@ -3,7 +3,7 @@
 
 Usage:
     python web_api.py search "query" [--max-results 10] [--location Germany] [--scrape-top N]
-    python web_api.py scrape "https://example.com" [--format markdown|html] [--location DE]
+    python web_api.py scrape "https://example.com" [--format markdown|html] [--location DE] [--run-js]
 
 Scrapes request Markdown from the API by default — it renders server-side, so nothing is
 converted here.
@@ -41,7 +41,7 @@ def api_key() -> str:
     return key
 
 
-def call(path: str, payload: dict, method: str = "POST") -> dict:
+def call(path: str, payload: dict, method: str = "POST", timeout: float = TIMEOUT) -> dict:
     """POST/GET with backoff on 429 and 5xx. 4xx other than 429 fails immediately."""
     body = json.dumps(payload).encode() if payload is not None else None
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -55,7 +55,7 @@ def call(path: str, payload: dict, method: str = "POST") -> dict:
             },
         )
         try:
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 body = json.loads(resp.read())
             # A 2xx is not the whole story: "faulted" in the envelope means the work
             # failed upstream even though the status code says otherwise.
@@ -108,11 +108,15 @@ def do_search(args: argparse.Namespace) -> dict:
     return out
 
 
-def scrape_body(url: str, fmt: str = "markdown", location: str | None = None) -> dict:
+def scrape_body(
+    url: str, fmt: str = "markdown", location: str | None = None, run_js: bool = False
+) -> dict:
     """Request body for /v1/scrape. `output` is a list; the API renders the format."""
     body: dict = {"url": url, "output": [fmt]}
     if location:
         body["location"] = location
+    if run_js:
+        body["run_js"] = True
     return body
 
 
@@ -140,6 +144,11 @@ def main() -> None:
         help="output format the API renders (default markdown)",
     )
     p.add_argument("--location", help='two-letter country code, e.g. "DE"')
+    p.add_argument(
+        "--run-js",
+        action="store_true",
+        help="execute page JavaScript — only after a plain scrape came back empty; much slower",
+    )
 
     args = parser.parse_args()
     if args.cmd == "search":
@@ -147,7 +156,12 @@ def main() -> None:
     else:
         if not args.url.startswith(("http://", "https://")):
             die("url must be an absolute http(s) URL", 2)
-        result = call("/v1/scrape", scrape_body(args.url, args.format, args.location))
+        result = call(
+            "/v1/scrape",
+            scrape_body(args.url, args.format, args.location, args.run_js),
+            # A run_js render can take the full 150s; don't let the default timeout cut it off.
+            timeout=max(TIMEOUT, 180.0) if args.run_js else TIMEOUT,
+        )
 
     json.dump(result, sys.stdout, indent=2, ensure_ascii=False)
     print()

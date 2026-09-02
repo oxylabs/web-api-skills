@@ -1,7 +1,6 @@
 # Oxylabs Web API — Agent Skills
 
-Skills that teach a coding agent to use the [Oxylabs Web API](https://github.com/oxylabs/gitbook-web-api)
-for live web search and page reading.
+Skills that teach a coding agent to use the Oxylabs Web API for live web search and web fetch.
 
 | Skill | Use it for |
 |---|---|
@@ -11,70 +10,51 @@ for live web search and page reading.
 
 ## Install
 
+Works with any skills-aware agent (Claude Code, Cursor, Codex, …):
+
 ```bash
-git clone https://github.com/oxylabs/web-api-skills.git
-cd web-api-skills
-./install.sh              # ~/.claude/skills — available in every project
-./install.sh --project    # ./.claude/skills — this repo only
-export OXYLABS_WEB_API_KEY=your_api_key_here
+npx skills add oxylabs/web-api-skills
 ```
 
-The repo is also a Claude Code plugin — `.claude-plugin/marketplace.json` and
-`plugin.json` at the root — so it can be added as a marketplace instead of copied by hand.
+Claude Code can instead take the repo as a plugin — skills and the MCP server wired
+together:
 
-`.mcp.json` at the root wires up the [MCP server](https://github.com/oxylabs/web-api-mcp)
-alongside the skills, so a project that adds this repo gets the tools and the method
-together. It expects `oxylabs-web-api-mcp` on `PATH` (`uv tool install
-git+https://github.com/oxylabs/web-api-mcp`). The key can come from the environment or from
-a `.env` in the project — the server fills any unset `OXYLABS_*` variable from there, so
-you do not have to put the key in the config file.
+```
+/plugin marketplace add oxylabs/web-api-skills
+/plugin install oxylabs-web-api
+```
 
-If you use the [MCP server](https://github.com/oxylabs/web-api-mcp), you may not need to
-install anything: it bundles `oxylabs-web-api` and serves it over MCP as the
-`oxylabs://skill/web-api` resource and the `web_research` prompt. Install the skills here
-when you want them loaded without the server, or when you want `migrate-to-oxylabs`.
+Skills are plain directories, so `git clone` + `./install.sh` (or `--project` for a
+repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 
-### Getting an API key
+## API key
 
 1. Log in to the [Oxylabs dashboard](https://dashboard.oxylabs.io).
 2. Create a **Web API** instance — keys from other Oxylabs products don't work here.
 3. Generate an API key on that instance.
 4. `export OXYLABS_WEB_API_KEY=<key>`
 
-Start a new session and run `/skills` to confirm both loaded. Re-run `install.sh` to upgrade.
+Start a new session and run `/skills` — all three skills should be listed.
 
-### Manual install
+## MCP server (optional, recommended)
 
-Skills are plain directories. Copy them wherever your agent reads skills from:
+`.mcp.json` at the root wires up the [MCP server](https://github.com/oxylabs/web-api-mcp),
+so a project that adds this repo gets typed tools alongside the skills. It expects the
+binary on `PATH`:
 
 ```bash
-cp -R skills/oxylabs-web-api ~/.claude/skills/
+uv tool install git+https://github.com/oxylabs/web-api-mcp
 ```
 
-Claude Desktop, Cursor and other MCP/skill-aware clients follow the same pattern with
-their own skills directory.
-
-## Layout
-
-```
-.mcp.json                         # MCP server config, so skills and tools install together
-.claude-plugin/
-├── marketplace.json              # add this repo as a Claude Code marketplace
-└── plugin.json
-skills/
-├── oxylabs-web-api/
-│   ├── SKILL.md
-│   └── scripts/web_api.py        # search / scrape / search-then-scrape, with retries
-├── oxylabs-web-research/
-│   └── SKILL.md
-└── migrate-to-oxylabs/
-    └── SKILL.md                  # parameter and response maps for six providers
-```
+The key comes from the environment or a `.env` in the project — never from the config
+file. The server also bundles the `oxylabs-web-api` skill itself (as the
+`oxylabs://skill/web-api` resource), so with the server alone you get tools and method;
+install this repo's skills when you also want `migrate-to-oxylabs`, or no server at all.
 
 ## The helper script standalone
 
-`web_api.py` has no dependencies beyond the Python standard library, so it is usable
-outside an agent too:
+`skills/oxylabs-web-api/scripts/web_api.py` is stdlib-only Python, usable outside an
+agent too:
 
 ```bash
 export OXYLABS_WEB_API_KEY=your_api_key_here
@@ -83,14 +63,13 @@ python skills/oxylabs-web-api/scripts/web_api.py search "figma pricing" --scrape
 python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/article"
 ```
 
-## Prefer tools over a CLI?
+## Troubleshooting
 
-The same two endpoints are available as MCP tools:
-[web-api-mcp](https://github.com/oxylabs/web-api-mcp) — `search`, `scrape`, `extract`,
-`check_scrape`, `read_scraped`, `list_scrapers` and `scrape_target`. Skills and MCP are
-complementary: MCP gives the agent typed tools, skills give it the judgment for when and
-how to use them. Both skills cover the tools as well as the HTTP endpoints, and tell the
-agent to prefer the tools when the server is connected.
+- **401 with a valid-looking key** — it is almost always a key from a different Oxylabs
+  product. Web API needs its own instance and key.
+- **429 mentioning quota** — the plan's quota is spent; retrying won't help.
+- **MCP server fails to connect (`Executable not found: oxylabs-web-api-mcp`)** — the
+  binary isn't installed; run the `uv tool install` line above.
 
 ## License
 

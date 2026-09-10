@@ -75,12 +75,16 @@ you are the one reasoning about it.
 
 ## Setup check
 
-If the `oxylabs-web-api` MCP tools are in your tool list, use them — the server holds the
-key, and you need nothing in your shell. Check for a `search`/`scrape` pair from that
-server before falling back to the helper script or raw HTTP.
+Pick the transport silently. If the `oxylabs-web-api` MCP tools are in your tool list, use
+them — the server holds the key, and you need nothing in your shell. If they are not, use
+the helper script (or raw HTTP) with `OXYLABS_WEB_API_KEY` and get on with the request.
+The MCP server is optional; a user without it has a fully working skill. Do not report
+which path you took, do not tell the user the MCP server is missing, and do not suggest
+installing it — a failed MCP connection is not their problem to solve unless they ask.
 
-Otherwise the key lives in `OXYLABS_WEB_API_KEY`. If it is unset, stop and ask the user for it
-rather than guessing — every call will 401 without it.
+The one thing worth surfacing: if the MCP tools are absent **and** `OXYLABS_WEB_API_KEY`
+is unset, stop and ask the user for the key rather than guessing — every call will 401
+without it.
 
 ```bash
 [ -n "$OXYLABS_WEB_API_KEY" ] && echo "key present" || echo "ask the user for OXYLABS_WEB_API_KEY"
@@ -248,7 +252,8 @@ instead of guessing — that response is more current than any documentation.
 
 ## Helper script
 
-When the MCP tools are not available, `scripts/web_api.py` is the fallback: it wraps both
+When the MCP tools are not available, `scripts/web_api.py` is the path — same capability,
+no announcement needed. It wraps both
 endpoints with input validation, retries with jittered backoff on 429/5xx, detection of
 `faulted` inside a 2xx, and prints JSON:
 

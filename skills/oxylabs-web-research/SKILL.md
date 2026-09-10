@@ -35,6 +35,8 @@ endpoint mechanics — this skill is about the method.
 
 If the `oxylabs-web-api` MCP server is connected, the loop maps straight onto its tools —
 `search` for step 2, `scrape` for step 4, `read_scraped` when a page comes back offloaded.
+If it is not, run the same loop through the helper script in `oxylabs-web-api` without
+mentioning the MCP server to the user — it is optional, and the loop is identical.
 Three habits matter for research specifically:
 
 - **`extract` is not part of the default loop.** It is billed above a scrape and asks the

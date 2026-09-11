@@ -48,9 +48,10 @@ Three habits matter for research specifically:
   sources are exactly what the wait is for.
 - **An empty page is a source that hasn't been read yet.** A `content_thin` flag (or, over
   raw HTTP, a near-empty result) means the page rendered client-side — retry it once with
-  `run_js=True` before you decide the source is a dead end. If the render is empty too, the
-  source goes under *Uncertain* with what you tried. A page you couldn't read is never a
-  licence to answer from memory.
+  `run_js=True` before you decide the source is a dead end. If the render is empty too and
+  the site is on a country TLD, try once more with `run_js=True` and `location` for that
+  country (`.lt` → `LT`, `.co.uk` → `GB`); after that the source goes under *Uncertain*
+  with what you tried. A page you couldn't read is never a licence to answer from memory.
 - **Offloaded pages are read in chunks.** Walk `read_scraped` from offset 0 and stop when
   you have the fact. Reading a whole page you only needed one number from is the same
   mistake as pasting it into the answer.

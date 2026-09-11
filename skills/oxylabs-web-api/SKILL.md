@@ -157,7 +157,12 @@ The rules that keep this from becoming a habit:
 - **Don't send `run_js` pre-emptively.** Most pages don't need it, and it turns a
   two-second read into a thirty-second job. Plain scrape first, always.
 - **Retry once, not twice.** If the rendered page is also empty, the content is behind a
-  login, a paywall or a hard block. Say so.
+  login, a paywall or a hard block. Say so — with one exception below.
+- **A country TLD gets one more try.** Some sites only serve their own country. If the
+  render is still empty and the site is on a two-letter country TLD, retry once more with
+  `run_js=True` **and** `location` set to that country: `.lt` → `LT`, `.es` → `ES`,
+  `.co.uk` → `GB`. Skip TLDs used as brands rather than markets — `.io`, `.ai`, `.co`,
+  `.me`. Empty after that is unreadable; report it.
 - **A short page is allowed to be short.** No flag means the page really is that brief —
   take it at face value.
 - **Never fill the gap from memory.** An unreadable page is a reported dead end, not an
@@ -237,8 +242,10 @@ contends with the extraction for the result's `json` key.
 MCP tools nothing flags this for you, so check it yourself: a couple of hundred characters,
 a bare heading, or a "you need to enable JavaScript" line means you got the shell, not the
 page. Retry the same request once with `run_js: true` (`--run-js` in the helper script) —
-it is much slower, which is why it is not the default — and if that is empty too, report
-the page as unreadable rather than working from memory.
+it is much slower, which is why it is not the default. Still empty on a country TLD such
+as `.lt` or `.co.uk`? One more attempt with `run_js: true` and `location` for that country
+(`LT`, `GB`). Empty after that, report the page as unreadable rather than working from
+memory.
 
 Note the two endpoints spell geo differently: `/v1/search` takes a place name
 (`"Germany"`), `/v1/scrape` takes a country code (`"DE"`).

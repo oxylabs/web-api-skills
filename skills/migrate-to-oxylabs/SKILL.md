@@ -120,11 +120,11 @@ Every provider returns a list of results with a title, a snippet and a URL. The 
 |---|---|---|---|---|---|---|
 | Envelope | `results` | `results` | `data.web` | `results` | `web.results` | `results` |
 | Title | `title` | `title` | `title` | `title` | `title` | `title` |
-| Snippet | `content` | `text`/`highlights` | `description` | `snippet` | `description` | `shortDescription` |
+| Snippet | `content` | `text`/`highlights` | `description` | `snippet` | `description` | `short_description` |
 | URL | `url` | `url` | `url` | `url` | `url` | `url` |
 | Rank | implicit | implicit | implicit | implicit | implicit | `metadata.position` |
 
-`shortDescription` catches people out — it is the field most often missed in a port, and the
+`short_description` catches people out — it is the field most often missed in a port, and the
 symptom is empty snippets rather than an error.
 
 Oxylabs also returns `related_searches[]` (`query`, `link`) and `related_questions[]`

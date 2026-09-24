@@ -67,7 +67,7 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
 
 - **401 with a valid-looking key** — it is almost always a key from a different Oxylabs
   product. Web API needs its own instance and key.
-- **429 mentioning quota** — the plan's quota is spent; retrying won't help.
+- **429 with `title: "QUOTA_EXCEEDED"`** — the plan's quota is spent; retrying won't help.
 - **MCP server fails to connect (`Executable not found: oxylabs-web-api-mcp`)** — the
   binary isn't installed; run the `uv tool install` line above.
 

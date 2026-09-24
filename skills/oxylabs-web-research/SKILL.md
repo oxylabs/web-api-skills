@@ -124,7 +124,6 @@ Pricing, availability and rankings change by country. When the question is geogr
 pass `location` and say which locale the answer reflects — an unqualified "it costs $9"
 is wrong somewhere.
 
-`search` takes a place name (`"Germany"`), `scrape` takes a country code (`"DE"`) — the
-same asymmetry the tools inherit from the API. On `scrape`, `check_empty_geo=True` turns a
+`search` and `scrape` both take `location` as a two-letter country code (`"DE"`). On `scrape`, `check_empty_geo=True` turns a
 silent wrong-country result into an error, which is what you want when the whole answer
 hinges on the locale.

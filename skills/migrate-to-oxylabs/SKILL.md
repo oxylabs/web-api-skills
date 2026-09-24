@@ -40,7 +40,7 @@ maps to `max_results` (1–20, default 10). The rest:
 | Tavily | Oxylabs | Note |
 |---|---|---|
 | `max_results` | `max_results` | Tavily allows more than 20; cap it |
-| `country` | `location` | Tavily takes a country, Oxylabs takes a place name — `"Germany"`, or `"New York,New York,United States"` |
+| `country` | `location` | Tavily takes a country name, Oxylabs a two-letter code — `"germany"` becomes `"DE"` |
 | `search_depth` | — | No depth ladder. One search |
 | `include_answer` | — | **No synthesised answer.** Read the sources and write the answer yourself, with citations |
 | `include_raw_content` | `POST /v1/scrape` | A separate call per URL, which is also what makes it cheap when you don't need it |
@@ -53,7 +53,7 @@ maps to `max_results` (1–20, default 10). The rest:
 | Exa | Oxylabs | Note |
 |---|---|---|
 | `numResults` | `max_results` | |
-| `userLocation` (2-letter) | `location` (place name) | Note the shape change |
+| `userLocation` (2-letter) | `location` (2-letter) | Same code |
 | `type` (`neural`/`fast`/`auto`/`deep`) | — | No modes. Exa's `instant` is the closest to what you get |
 | `contents.highlights` | — | Scrape the page and read it, or `extract` the fields you want |
 | `includeDomains` / `excludeDomains` | — | Client-side |
@@ -68,7 +68,7 @@ The closest fit in the list — Firecrawl also splits search from scrape.
 | Firecrawl | Oxylabs | Note |
 |---|---|---|
 | `/v2/search` `limit` | `/v1/search` `max_results` | |
-| `/v2/search` `location`, `country` | `location` | One field, a place name |
+| `/v2/search` `location`, `country` | `location` | One field, a two-letter country code. Keep `country`; a city or region in `location` has no equivalent |
 | `/v2/search` `scrapeOptions` | a separate `/v1/scrape` per URL | No hydration-in-search |
 | `/v2/scrape` `formats: ["markdown"]` | `output: ["markdown"]` | Same idea, same default advice |
 | `/v2/scrape` `formats: ["html"]` | `output: ["html"]` | |
@@ -83,7 +83,7 @@ The closest fit in the list — Firecrawl also splits search from scrape.
 | Perplexity | Oxylabs | Note |
 |---|---|---|
 | `max_results` | `max_results` | |
-| `country` (ISO alpha-2) | `location` (place name) | |
+| `country` (ISO alpha-2) | `location` (ISO alpha-2) | Same code |
 | `search_context_size`, `max_tokens`, `max_tokens_per_page` | — | Scrape only what you decide to read; that is the budget control |
 | `search_domain_filter` | — | Client-side |
 | `search_recency_filter`, `*_date_filter` | — | Not supported |
@@ -96,7 +96,7 @@ The closest fit in the list — Firecrawl also splits search from scrape.
 | `q` | `query` | |
 | `count` (max 20) | `max_results` (max 20) | Same ceiling |
 | `offset` | — | No pagination. Ask a narrower question |
-| `country`, `search_lang`, `ui_lang` | `location` | One field |
+| `country`, `search_lang`, `ui_lang` | `location` | `country` carries over as the same two-letter code; no language knobs |
 | `freshness` | — | Not supported |
 | `extra_snippets` | scrape the URL | |
 | `/res/v1/llm-context` | `output: ["markdown"]` on the pages you pick | Their token-budgeted context has no direct equivalent; picking fewer pages is the substitute |
@@ -127,15 +127,15 @@ Every provider returns a list of results with a title, a snippet and a URL. The 
 `short_description` catches people out — it is the field most often missed in a port, and the
 symptom is empty snippets rather than an error.
 
-Oxylabs also returns `related_searches[]` (`query`, `link`) and `related_questions[]`
-(`question`, plus nullable `title`, `link`, `snippet`), and a `metadata.request_id` worth
+Oxylabs also returns `related_searches[]` (`query`) and `related_questions[]`
+(`question`, plus nullable `title` and `snippet`), and a `metadata.request_id` worth
 logging: it is what support traces a call by.
 
-Two shape traps when you port the response handling: none of `results`, `related_searches`
-or `related_questions` is a required field, so an absent array means the same as an empty
-one — providers that always send `results` let you write `body["results"]`, here you want
-`body.get("results", [])`. And `query` is capped at 2048 characters, `location` at 256;
-providers with no cap will hand you queries that now `400`.
+Two traps when you port the request and error handling: `query` is capped at 2048
+characters, and `location` must be an ISO 3166-1 alpha-2 code — providers with no cap, or
+code that passed a place name, will now get a `400`. And when every search engine fails,
+the call is a `500` with `state: "faulted"`, not a `2xx` with an empty list; it is not
+charged, so one retry is free.
 
 ## What does not port
 

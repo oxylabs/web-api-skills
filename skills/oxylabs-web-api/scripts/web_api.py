@@ -2,7 +2,7 @@
 """Oxylabs Web API CLI: search, scrape, or search-then-scrape in one call.
 
 Usage:
-    python web_api.py search "query" [--max-results 10] [--location Germany] [--scrape-top N]
+    python web_api.py search "query" [--max-results 10] [--location DE] [--scrape-top N]
     python web_api.py scrape "https://example.com" [--format markdown|html] [--location DE] [--run-js]
 
 Scrapes request Markdown from the API by default — it renders server-side, so nothing is
@@ -64,6 +64,8 @@ def call(path: str, payload: dict, method: str = "POST", timeout: float = TIMEOU
             return body
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", "replace")[:600]
+            if exc.code == 429 and "QUOTA_EXCEEDED" in detail:
+                die("429 QUOTA_EXCEEDED — the plan's quota is spent. Stop and tell the user.")
             if exc.code in RETRY_STATUSES and attempt < MAX_ATTEMPTS:
                 # Full jitter, so concurrent callers do not all retry on the same second.
                 wait = round(random.uniform(0, 2**attempt), 1)
@@ -87,8 +89,8 @@ def do_search(args: argparse.Namespace) -> dict:
         die("--max-results must be between 1 and 20", 2)
     if not 1 <= len(args.query) <= 2048:
         die("query must be between 1 and 2048 characters", 2)
-    if args.location and len(args.location) > 256:
-        die("--location must be 256 characters or fewer", 2)
+    if args.location and not (len(args.location) == 2 and args.location.isalpha()):
+        die('--location must be a two-letter country code, e.g. "DE"', 2)
     payload = {"query": args.query, "max_results": args.max_results}
     if args.location:
         payload["location"] = args.location
@@ -127,7 +129,7 @@ def main() -> None:
     s = sub.add_parser("search", help="search the live web")
     s.add_argument("query")
     s.add_argument("--max-results", type=int, default=10, help="1-20, default 10")
-    s.add_argument("--location", help='e.g. "Germany"')
+    s.add_argument("--location", help='two-letter country code, e.g. "DE"')
     s.add_argument(
         "--scrape-top",
         type=int,

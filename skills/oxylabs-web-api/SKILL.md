@@ -117,8 +117,8 @@ The signatures — *which* tool to reach for is the decision table above:
 `scrape_target(endpoint, params)`
 
 `scrape`'s `format` is `"markdown"` (default) or `"html"`. Every other parameter carries
-the meaning it has in the field tables below — `location` on `scrape` is still a country
-code, `location` on `search` is still a place name.
+the meaning it has in the field tables below — `location` is a two-letter country code
+on both `search` and `scrape`.
 
 ### JavaScript rendering comes back as a job
 
@@ -206,13 +206,13 @@ integrating the API into an application.
 |---|---|---|
 | `query` | string, **required** | 1–2048 characters. Write it like a search query, not a sentence. |
 | `max_results` | integer, 1–20 | Default 10. |
-| `location` | string | Geo context, max 256 chars, e.g. `"Germany"`, `"New York,New York,United States"`. |
+| `location` | string | ISO 3166-1 alpha-2 country code, e.g. `"DE"`, case-insensitive. A place name such as `"Germany"` is a `400`. |
 
 Returns `results[]` with `title`, `short_description`, `url`, `metadata.position`, plus
-`related_searches[]` (`query`, `link`) and `related_questions[]` (`question`, plus nullable
-`title`, `link`, `snippet`). None of the three arrays is guaranteed present — absent means
-the same as empty, so read them as "array or `[]`". `status` is `done` or `faulted`; check
-it, because `faulted` can arrive with a `2xx`.
+`related_searches[]` (`query`) and `related_questions[]` (`question`, plus nullable
+`title` and `snippet`), and `metadata.request_id`. All three arrays are always present,
+possibly empty. A `200` carries `state: "done"`. When every search engine fails, the call
+is a `500` with `state: "faulted"` — not charged, so one retry costs nothing.
 
 **Descriptions are search snippets, not page content.** Never answer a factual question
 from `short_description` alone — it is truncated and often stale. Scrape the source.
@@ -247,8 +247,7 @@ as `.lt` or `.co.uk`? One more attempt with `run_js: true` and `location` for th
 (`LT`, `GB`). Empty after that, report the page as unreadable rather than working from
 memory.
 
-Note the two endpoints spell geo differently: `/v1/search` takes a place name
-(`"Germany"`), `/v1/scrape` takes a country code (`"DE"`).
+Both endpoints spell geo the same way: a two-letter country code (`"DE"`).
 
 Scrape is heavier than search — expect seconds, not milliseconds, and don't fire dozens in
 parallel. Pages get long: read what you need and stop rather than pulling an entire page
@@ -261,8 +260,8 @@ instead of guessing — that response is more current than any documentation.
 
 When the MCP tools are not available, `scripts/web_api.py` is the path — same capability,
 no announcement needed. It wraps both
-endpoints with input validation, retries with jittered backoff on 429/5xx, detection of
-`faulted` inside a 2xx, and prints JSON:
+endpoints with input validation, retries with jittered backoff on rate limits and 5xx, no
+retry on a spent quota, and prints JSON:
 
 ```bash
 python scripts/web_api.py search "who acquired figma" --max-results 5
@@ -286,9 +285,9 @@ contract above.
 
 | Status | Meaning | What to do |
 |---|---|---|
-| 400 | Validation failed | Read `extra[].key` and `extra[].message`; fix that field. Do not retry unchanged. |
+| 400 | Validation failed | Search names each bad field in `errors[].pointer` and `errors[].detail`; scrape in `extra[].key` and `extra[].message`. Fix that field. Do not retry unchanged. |
 | 401 | Bad or missing key | Stop and tell the user. Retrying will not help. |
-| 429 | Rate limit **or** spent quota — not distinguishable | The MCP tools already retried with jittered backoff. If you still see it, stop retrying and tell the user to check their quota. |
+| 429 | Rate limit **or** spent quota | `title: "QUOTA_EXCEEDED"` means the plan's quota is spent: stop and tell the user. Otherwise it is a rate limit, already retried with jittered backoff; if you still see it, slow down. |
 | 5xx | Upstream trouble | Already retried for you. Report it rather than re-sending. |
 
 A 400 is a bug in your request. Fix the field the response names instead of retrying.

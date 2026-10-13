@@ -1,6 +1,7 @@
 # Oxylabs Web API — Agent Skills
 
-Skills that teach a coding agent to use the Oxylabs Web API for live web search and web fetch.
+Welcome to the official repository overview for Oxylabs' Web API Skills. This guide is a developer-focused, technical reference covering what Web API Skills do. Skills that teach a coding agent to use the Oxylabs Web API for live web search and web fetch.
+
 
 | Skill | Use it for |
 |---|---|
@@ -71,6 +72,17 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
 - **MCP server fails to connect (`Executable not found: oxylabs-web-api-mcp`)** — the
   binary isn't installed; run the `uv tool install` line above.
 
+## Learn More
+
+For detailed configuration, advanced usage, and code examples in multiple languages, check the official documentation:
+
+- [Get started with Web API](https://oxylabs.io/products/web-api)
+- [Web API documentation](https://developers.oxylabs.io/products/web-api)
+
 ## License
 
 MIT
+
+## Contact Us
+
+If you have questions or need support, reach out to us at [support@oxylabs.io](mailto:support@oxylabs.io), or through live chat in the [Oxylabs Dashboard](https://dashboard.oxylabs.io/). For enterprise inquiries, contact your dedicated account manager.

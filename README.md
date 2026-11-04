@@ -17,13 +17,16 @@ Works with any skills-aware agent (Claude Code, Cursor, Codex, …):
 npx skills add oxylabs/web-api-skills
 ```
 
-Claude Code can instead take the repo as a plugin — skills and the MCP server wired
-together:
+Claude Code can instead take the repo as a plugin — the skills plus the Oxylabs-hosted
+MCP server, with nothing else to install:
 
 ```
 /plugin marketplace add oxylabs/web-api-skills
-/plugin install oxylabs-web-api
+/plugin install oxylabs-web-api@oxylabs-web-api
 ```
+
+Claude Code asks for your Web API key when the plugin is enabled and keeps it in the
+system keychain. To change it later, run `/plugin configure oxylabs-web-api@oxylabs-web-api`.
 
 Skills are plain directories, so `git clone` + `./install.sh` (or `--project` for a
 repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
@@ -33,22 +36,21 @@ repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 1. Log in to the [Oxylabs dashboard](https://dashboard.oxylabs.io).
 2. Create a **Web API** instance — keys from other Oxylabs products don't work here.
 3. Generate an API key on that instance.
-4. `export OXYLABS_WEB_API_KEY=<key>`
+4. For the Claude Code plugin, paste it when Claude Code asks. For skills installed any
+   other way, `export OXYLABS_WEB_API_KEY=<key>`.
 
 Start a new session and run `/skills` — all three skills should be listed.
 
 ## MCP server (optional, recommended)
 
-`.mcp.json` at the root wires up the [MCP server](https://github.com/oxylabs/web-api-mcp),
-so a project that adds this repo gets typed tools alongside the skills. It expects the
-binary on `PATH`:
+The plugin's `.mcp.json` connects to the Oxylabs-hosted
+[MCP server](https://github.com/oxylabs/web-api-mcp) at `https://mcp.oxylabs.io/web-api-mcp`,
+sending the key from the plugin's settings as `Authorization: Bearer <key>`. Other agents
+can connect to the same URL with that header — see the
+[web-api-mcp README](https://github.com/oxylabs/web-api-mcp#connect-to-the-remote-mcp-server)
+for Codex, Cursor and others, or to run the server yourself.
 
-```bash
-uv tool install git+https://github.com/oxylabs/web-api-mcp
-```
-
-The key comes from the environment or a `.env` in the project — never from the config
-file. The server also bundles the `oxylabs-web-api` skill itself (as the
+The server also bundles the `oxylabs-web-api` skill itself (as the
 `oxylabs://skill/web-api` resource), so with the server alone you get tools and method;
 install this repo's skills when you also want `migrate-to-oxylabs`, or no server at all.
 
@@ -69,8 +71,10 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
 - **401 with a valid-looking key** — it is almost always a key from a different Oxylabs
   product. Web API needs its own instance and key.
 - **429 with `title: "QUOTA_EXCEEDED"`** — the plan's quota is spent; retrying won't help.
-- **MCP server fails to connect (`Executable not found: oxylabs-web-api-mcp`)** — the
-  binary isn't installed; run the `uv tool install` line above.
+- **Plugin MCP tools missing** — the key isn't set. Run
+  `/plugin configure oxylabs-web-api@oxylabs-web-api`, then restart Claude Code.
+- **`Authentication failed (401)` from the plugin's tools** — same as above: wrong product's
+  key, or a typo. Re-enter it with `/plugin configure`.
 
 ## Learn More
 

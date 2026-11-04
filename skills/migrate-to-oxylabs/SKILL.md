@@ -55,7 +55,7 @@ maps to `max_results` (1–20, default 10). The rest:
 | `numResults` | `max_results` | |
 | `userLocation` (2-letter) | `location` (2-letter) | Same code |
 | `type` (`neural`/`fast`/`auto`/`deep`) | — | No modes. Exa's `instant` is the closest to what you get |
-| `contents.highlights` | — | Scrape the page and read it, or `extract` the fields you want |
+| `contents.highlights` | — | Scrape the page and read it, or pass `json_prompt` for the fields you want |
 | `includeDomains` / `excludeDomains` | — | Client-side |
 | `startPublishedDate` / `endPublishedDate` | — | Not supported |
 | `category` | — | Not supported |

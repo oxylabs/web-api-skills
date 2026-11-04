@@ -23,3 +23,4 @@ echo
 echo "Done. Set your key so the skills can call the API:"
 echo "  export OXYLABS_WEB_API_KEY=your_api_key_here"
 echo "Then start a new Claude Code session and run /skills to confirm they loaded."
+echo "(For skills plus the hosted MCP server in one step, install the Claude Code plugin instead: see README.)"

@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "oxylabs-web-api": {
-      "command": "oxylabs-web-api-mcp",
-      "env": {
-        "OXYLABS_WEB_API_KEY": "${OXYLABS_WEB_API_KEY}"
+      "type": "http",
+      "url": "https://mcp.oxylabs.io/web-api-mcp",
+      "headers": {
+        "Authorization": "Bearer ${user_config.api_key}"
       }
     }
   }

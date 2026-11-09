@@ -1,0 +1,39 @@
+{
+  "name": "oxylabs-web-api",
+  "displayName": "Oxylabs Web API",
+  "version": "1.1.1",
+  "description": "Live web search and page reading through the Oxylabs Web API: real SERP results, country-accurate, and pages that a plain fetch cannot retrieve. Runs on the Oxylabs-hosted MCP server with your Web API key.",
+  "author": {
+    "name": "Oxylabs",
+    "email": "support@oxylabs.io"
+  },
+  "homepage": "https://oxylabs.io",
+  "repository": "https://github.com/oxylabs/web-api-skills",
+  "license": "MIT",
+  "keywords": [
+    "oxylabs",
+    "web-api",
+    "search",
+    "web-search",
+    "scraping",
+    "serp",
+    "research",
+    "markdown",
+    "anti-bot",
+    "mcp"
+  ],
+  "logo": ".claude-plugin/icon.png",
+  "skills": "./skills/",
+  "mcpServers": "mcp.json",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "OXYLABS_WEB_API_KEY": {
+        "type": "string",
+        "title": "Oxylabs Web API key",
+        "description": "From a Web API instance in the Oxylabs dashboard (dashboard.oxylabs.io). Keys from other Oxylabs products don't work."
+      }
+    },
+    "required": ["OXYLABS_WEB_API_KEY"]
+  }
+}

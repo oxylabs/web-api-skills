@@ -1,6 +1,8 @@
-# Oxylabs Web API — Agent Skills
+# Oxylabs Web API — Claude Code Plugin and Agent Skills
 
 Welcome to the official repository overview for Oxylabs' Web API Skills. This guide is a developer-focused, technical reference covering what Web API Skills do. Skills that teach a coding agent to use the Oxylabs Web API for live web search and web fetch.
+
+This repo works two ways: as a **Claude Code plugin** (the skills plus the Oxylabs-hosted MCP server, set up in one install) or as plain **agent skills** for Claude Code, Cursor, Codex and other skills-aware agents. See [Install](#install).
 
 
 | Skill | Use it for |

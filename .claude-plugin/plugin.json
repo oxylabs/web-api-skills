@@ -12,6 +12,8 @@
   "homepage": "https://github.com/oxylabs/web-api-skills",
   "repository": "https://github.com/oxylabs/web-api-skills",
   "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "privacyPolicyUrl": "https://oxylabs.io/legal/privacy",
   "keywords": [
     "oxylabs",
     "web-api",

@@ -30,6 +30,10 @@ MCP server, with nothing else to install:
 Claude Code asks for your Web API key when the plugin is enabled and keeps it in the
 system keychain. To change it later, run `/plugin configure oxylabs-web-api@oxylabs-web-api`.
 
+Cursor takes the same repo as a plugin too (`.cursor-plugin/`): the skills plus the same hosted
+MCP server. Install **Oxylabs Web API** from the Cursor Marketplace, then set your key as
+`OXYLABS_WEB_API_KEY` under **Plugins → Configure**.
+
 Skills are plain directories, so `git clone` + `./install.sh` (or `--project` for a
 repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 

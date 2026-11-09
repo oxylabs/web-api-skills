@@ -81,6 +81,10 @@ python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/art
   `/plugin configure oxylabs-web-api@oxylabs-web-api`, then restart Claude Code.
 - **`Authentication failed (401)` from the plugin's tools** — same as above: wrong product's
   key, or a typo. Re-enter it with `/plugin configure`.
+- **Cursor: the plugin's tools aren't used** — if you added the server earlier with the "Add to
+  Cursor" button, Cursor merges the two into one **Oxylabs Web API** server under **MCPs**.
+  Open it and switch the source to **Plugin** (the old **User** one reads the key from an
+  environment variable that Cursor doesn't see when started from the Dock).
 
 ## Learn More
 

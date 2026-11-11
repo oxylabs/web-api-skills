@@ -1,0 +1,110 @@
+# Builds the claude-directory branch from main for Anthropic's plugin directory.
+# The directory takes only text, JSON, YAML and image files from organizations it
+# hasn't verified, and no `context` key in skill front matter, so the branch drops
+# install.sh, the helper script and `context: fork`, and points the skills at raw
+# HTTP instead of the script. The plugin always has the MCP server, so nothing
+# the plugin uses is lost. Everything else on the branch is main as is.
+name: Build claude-directory branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: claude-directory
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Remove what the directory refuses
+        run: |
+          git rm -rq install.sh skills/oxylabs-web-api/scripts
+          git rm -rq --ignore-unmatch .github
+
+      - name: Point the skills at raw HTTP
+        shell: python
+        run: |
+          import re
+          from pathlib import Path
+
+          def edit(path, *changes):
+              p = Path(path)
+              text = p.read_text()
+              for old, new in changes:
+                  pattern = old if isinstance(old, re.Pattern) else re.compile(re.escape(old))
+                  text, n = pattern.subn(new, text)
+                  if n != 1:
+                      raise SystemExit(f"{path}: expected 1 match for {pattern.pattern!r}, got {n}. Update this workflow to match main.")
+              p.write_text(text)
+
+          edit(
+              "skills/oxylabs-web-api/SKILL.md",
+              ("for the HTTP and CLI paths", "for the HTTP path"),
+              (
+                  "Three ways to call them, in order of preference: the **MCP tools** if the server is\n"
+                  "connected, the **helper script**, then **raw HTTP** with any client.",
+                  "Two ways to call them, in order of preference: the **MCP tools** if the server is\n"
+                  "connected, then **raw HTTP** with any client.",
+              ),
+              ("the helper script (or raw HTTP) with", "raw HTTP with"),
+              (" (`--run-js` in the helper script)", ""),
+              (re.compile(r"## Helper script\n.*?(?=## Errors\n)", re.S), ""),
+          )
+          edit(
+              "skills/oxylabs-web-research/SKILL.md",
+              ("for the HTTP and CLI paths", "for the HTTP path"),
+              ("context: fork\n", ""),
+              (
+                  "run the same loop through the helper script in `oxylabs-web-api`",
+                  "run the same loop over raw HTTP as `oxylabs-web-api` describes",
+              ),
+          )
+          edit(
+              "README.md",
+              (", retries, and a CLI helper", ", and retries"),
+              (
+                  "`git clone` + `./install.sh` (or `--project` for a\n"
+                  "repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.",
+                  "`git clone` + `cp -R skills/* ~/.claude/skills/` also works.",
+              ),
+              (
+                  "by the skills' helper script (`skills/oxylabs-web-api/scripts/web_api.py`)",
+                  "by the skills over plain HTTP",
+              ),
+              (re.compile(r"## The helper script standalone\n.*?(?=## Troubleshooting\n)", re.S), ""),
+          )
+
+      - name: Check nothing refused is left
+        run: |
+          if git grep -nE 'web_api\.py|install\.sh|helper script|^context:' -- . ; then
+            echo "::error::References to removed files are left. Update this workflow to match main."
+            exit 1
+          fi
+          if git grep -lI '^#!' -- . ; then
+            echo "::error::Files with a #! line are left; the directory refuses them."
+            exit 1
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          tree=$(git write-tree)
+          parent=$(git rev-parse -q --verify origin/claude-directory || true)
+          if [ -n "$parent" ] && [ "$tree" = "$(git rev-parse "$parent^{tree}")" ]; then
+            echo "claude-directory is already up to date"
+            exit 0
+          fi
+          commit=$(git commit-tree "$tree" ${parent:+-p "$parent"} -m "Build from main ${GITHUB_SHA::7}")
+          git push origin "$commit:refs/heads/claude-directory"

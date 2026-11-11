@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "oxylabs-web-api",
+  "displayName": "Oxylabs Web API",
+  "version": "1.1.1",
+  "description": "Live web search and page reading through the Oxylabs Web API: real SERP results, country-accurate, and pages that a plain fetch cannot retrieve.",
+  "author": {
+    "name": "Oxylabs",
+    "email": "support@oxylabs.io",
+    "url": "https://oxylabs.io"
+  },
+  "homepage": "https://github.com/oxylabs/web-api-skills",
+  "repository": "https://github.com/oxylabs/web-api-skills",
+  "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "privacyPolicyUrl": "https://oxylabs.io/legal/privacy",
+  "keywords": [
+    "oxylabs",
+    "web-api",
+    "search",
+    "scraping",
+    "serp",
+    "research",
+    "markdown",
+    "anti-bot",
+    "mcp"
+  ],
+  "skills": [
+    "./skills/oxylabs-web-api",
+    "./skills/oxylabs-web-research",
+    "./skills/migrate-to-oxylabs"
+  ],
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Oxylabs Web API key",
+      "description": "From a Web API instance in the Oxylabs dashboard (dashboard.oxylabs.io). Keys from other Oxylabs products don't work.",
+      "required": true,
+      "sensitive": true
+    }
+  }
+}

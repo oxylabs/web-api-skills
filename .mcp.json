@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "oxylabs-web-api": {
+      "type": "http",
+      "url": "https://mcp.oxylabs.io/web-api-mcp",
+      "headers": {
+        "Authorization": "Bearer ${user_config.api_key}"
+      }
+    }
+  }
+}

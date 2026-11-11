@@ -23,7 +23,7 @@ import time
 import urllib.error
 import urllib.request
 
-BASE_URL = os.environ.get("OXYLABS_BASE_URL", "https://webapi.oxylabs.io").rstrip("/")
+BASE_URL = "https://webapi.oxylabs.io"
 TIMEOUT = float(os.environ.get("OXYLABS_TIMEOUT", "120"))
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 MAX_ATTEMPTS = 3

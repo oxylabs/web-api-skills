@@ -47,6 +47,17 @@ repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 
 Start a new session and run `/skills` — all three skills should be listed.
 
+## Where your data goes
+
+The plugin and skills send your Web API key, search queries and the URLs you ask to read
+only to Oxylabs:
+
+- `https://mcp.oxylabs.io` — the hosted MCP server the plugin connects to
+- `https://webapi.oxylabs.io` — the Web API itself, called by the MCP server and, when the
+  server isn't available, by the skills' helper script (`skills/oxylabs-web-api/scripts/web_api.py`)
+
+Nothing is sent anywhere else. See the [Oxylabs privacy policy](https://oxylabs.io/legal/privacy).
+
 ## MCP server (optional, recommended)
 
 The plugin's `.mcp.json` connects to the Oxylabs-hosted

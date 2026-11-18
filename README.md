@@ -7,7 +7,7 @@ This repo works two ways: as a **Claude Code plugin** (the skills plus the Oxyla
 
 | Skill | Use it for |
 |---|---|
-| `oxylabs-web-api` | Mechanics — the MCP tools, endpoint parameters, latency, errors, retries, and a CLI helper |
+| `oxylabs-web-api` | Mechanics — the MCP tools, endpoint parameters (search, company search, scrape), latency, errors, retries, and a CLI helper |
 | `oxylabs-web-research` | The research method — search, pick sources, read, cite |
 | `migrate-to-oxylabs` | Porting off Tavily, Exa, Firecrawl, Perplexity, Brave or Linkup |
 
@@ -80,6 +80,7 @@ agent too:
 export OXYLABS_WEB_API_KEY=your_api_key_here
 python skills/oxylabs-web-api/scripts/web_api.py search "eu ai act deadlines" --max-results 5
 python skills/oxylabs-web-api/scripts/web_api.py search "figma pricing" --scrape-top 2
+python skills/oxylabs-web-api/scripts/web_api.py companies "electric vehicle battery makers in Germany"
 python skills/oxylabs-web-api/scripts/web_api.py scrape "https://example.com/article"
 ```
 

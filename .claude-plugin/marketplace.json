@@ -6,13 +6,13 @@
     "email": "support@oxylabs.io",
     "url": "https://oxylabs.io"
   },
-  "description": "Oxylabs Web API — live web search and page reading for agents.",
-  "version": "1.1.1",
+  "description": "Oxylabs Web API — live web search, page reading and company lookup for agents.",
+  "version": "1.2.0",
   "plugins": [
     {
       "name": "oxylabs-web-api",
       "source": "./",
-      "description": "Search the live web and read any page: real SERP results from the target country, JS-heavy and bot-protected pages included, Markdown rendered server-side.",
+      "description": "Search the live web and read any page: real SERP results from the target country, JS-heavy and bot-protected pages included, Markdown rendered server-side. Company search returns profiles: industry, size, funding, revenue.",
       "author": {
         "name": "Oxylabs",
         "url": "https://oxylabs.io"
@@ -21,6 +21,7 @@
         "oxylabs",
         "web-api",
         "search",
+        "company-search",
         "scraping",
         "serp",
         "research",

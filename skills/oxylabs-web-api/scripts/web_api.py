@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Oxylabs Web API CLI: search, scrape, or search-then-scrape in one call.
+"""Oxylabs Web API CLI: search, company search, scrape, or search-then-scrape in one call.
 
 Usage:
     python web_api.py search "query" [--max-results 10] [--location DE] [--scrape-top N]
+    python web_api.py companies "query" [--max-results 10] [--full]
     python web_api.py scrape "https://example.com" [--format markdown|html] [--location DE] [--run-js]
 
 Scrapes request Markdown from the API by default — it renders server-side, so nothing is
@@ -27,6 +28,7 @@ BASE_URL = "https://webapi.oxylabs.io"
 TIMEOUT = float(os.environ.get("OXYLABS_TIMEOUT", "120"))
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 MAX_ATTEMPTS = 3
+ERROR_KEEP = 600  # characters of an error body shown
 
 
 def die(msg: str, code: int = 1) -> None:
@@ -56,14 +58,15 @@ def call(path: str, payload: dict, method: str = "POST", timeout: float = TIMEOU
         )
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                body = json.loads(resp.read())
+                result = json.loads(resp.read())
             # A 2xx is not the whole story: "faulted" in the envelope means the work
             # failed upstream even though the status code says otherwise.
-            if isinstance(body, dict) and body.get("status") == "faulted":
-                die(f"{path} returned a 2xx with status=faulted: {str(body)[:600]}")
-            return body
+            # The search endpoints name the field `state`, others `status`.
+            if isinstance(result, dict) and "faulted" in (result.get("status"), result.get("state")):
+                die(f"{path} returned a 2xx but faulted: {str(result)[:ERROR_KEEP]}")
+            return result
         except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")[:600]
+            detail = exc.read().decode("utf-8", "replace")[:ERROR_KEEP]
             if exc.code == 429 and "QUOTA_EXCEEDED" in detail:
                 die("429 QUOTA_EXCEEDED — the plan's quota is spent. Stop and tell the user.")
             if exc.code in RETRY_STATUSES and attempt < MAX_ATTEMPTS:
@@ -84,11 +87,16 @@ def call(path: str, payload: dict, method: str = "POST", timeout: float = TIMEOU
     raise AssertionError("unreachable")
 
 
+def check_search_args(args: argparse.Namespace, max_results_limit: int, query_limit: int) -> None:
+    """Validate the arguments the search commands share."""
+    if not 1 <= args.max_results <= max_results_limit:
+        die(f"--max-results must be between 1 and {max_results_limit}", 2)
+    if not 1 <= len(args.query) <= query_limit:
+        die(f"query must be between 1 and {query_limit} characters", 2)
+
+
 def do_search(args: argparse.Namespace) -> dict:
-    if not 1 <= args.max_results <= 20:
-        die("--max-results must be between 1 and 20", 2)
-    if not 1 <= len(args.query) <= 2048:
-        die("query must be between 1 and 2048 characters", 2)
+    check_search_args(args, 20, 2048)
     if args.location and not (len(args.location) == 2 and args.location.isalpha()):
         die('--location must be a two-letter country code, e.g. "DE"', 2)
     payload = {"query": args.query, "max_results": args.max_results}
@@ -107,6 +115,73 @@ def do_search(args: argparse.Namespace) -> dict:
                 # One dead URL should not lose the results we already have.
                 pages.append({"url": url, "error": "scrape failed"})
         out["scraped"] = pages
+    return out
+
+
+# What `companies` prints without --full, as paths into a profile.
+KEY_FACTS = (
+    ("name",),
+    ("website_url",),
+    ("linkedin_url",),
+    ("description",),
+    ("industry",),
+    ("type",),
+    ("founded_year",),
+    ("employees_count",),
+    ("headquarters", "city"),
+    ("headquarters", "country"),
+    ("funding", "total_usd"),
+    ("revenue_annual_usd",),
+)
+DESCRIPTION_KEEP = 200
+TRIM_NOTE = (
+    "Each company is cut to its key facts, without investors, web traffic or the full "
+    "description. For one company in full, search again with its website domain as the "
+    "query and --max-results 1 --full."
+)
+
+
+def key_facts(profile: object) -> object:
+    """A company profile cut to KEY_FACTS, keeping its shape. Missing or null fields are skipped.
+    A profile with none of them comes back unchanged."""
+    if not isinstance(profile, dict):
+        return profile
+
+    out: dict = {}
+    for path in KEY_FACTS:
+        value: object = profile
+        for key in path:
+            value = value.get(key) if isinstance(value, dict) else None
+        if value is None or (isinstance(value, str) and not value.strip()):
+            continue
+        target = out
+        for key in path[:-1]:
+            target = target.setdefault(key, {})
+        target[path[-1]] = value
+
+    if not out:
+        # None of the key facts (renamed schema, investors-only profile): return the profile
+        # whole rather than an empty or mangled one, so nothing is silently lost.
+        return profile
+
+    desc = out.get("description")
+    if isinstance(desc, str):
+        desc = " ".join(desc.split())
+        if len(desc) > DESCRIPTION_KEEP:
+            desc = desc[: DESCRIPTION_KEEP - 1].rstrip() + "…"  # the ellipsis counts toward the cap
+        out["description"] = desc
+
+    return out
+
+
+def do_companies(args: argparse.Namespace) -> dict:
+    check_search_args(args, 100, 2000)
+    out = call("/v1/search/companies", {"query": args.query, "max_results": args.max_results})
+    if not args.full and isinstance(out.get("results"), list):
+        out["results"] = [key_facts(r) for r in out["results"]]
+        # The API may send its own `note`; keep it and add ours.
+        existing = out.get("note")
+        out["note"] = f"{existing} {TRIM_NOTE}" if isinstance(existing, str) and existing else TRIM_NOTE
     return out
 
 
@@ -137,6 +212,18 @@ def main() -> None:
         help="also scrape the top N result URLs and attach them under `scraped`",
     )
 
+    c = sub.add_parser("companies", help="search companies by name or description")
+    c.add_argument(
+        "query",
+        help="a company name, or a description of the companies wanted; there is no --location, so put the country or city here",
+    )
+    c.add_argument("--max-results", type=int, default=10, help="1-100, default 10")
+    c.add_argument(
+        "--full",
+        action="store_true",
+        help="print whole profiles (investors, web traffic) instead of key facts; keep --max-results small",
+    )
+
     p = sub.add_parser("scrape", help="read one URL")
     p.add_argument("url")
     p.add_argument(
@@ -155,6 +242,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.cmd == "search":
         result = do_search(args)
+    elif args.cmd == "companies":
+        result = do_companies(args)
     else:
         if not args.url.startswith(("http://", "https://")):
             die("url must be an absolute http(s) URL", 2)

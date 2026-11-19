@@ -35,7 +35,10 @@ endpoint mechanics — this skill is about the method.
 
 If the `oxylabs-web-api` MCP server is connected, the loop maps straight onto its tools —
 `search` for step 2, `scrape` for step 4, `read_result` when a page comes back cut short.
-If it is not, run the same loop through the helper script in `oxylabs-web-api` without
+When the fact you need is about a company (its size, funding, headquarters, who its peers are),
+`search_companies` returns the profile directly; treat its figures as estimates
+and confirm the ones the answer rests on against the company's own site.
+If the MCP server is not connected, run the same loop through the helper script in `oxylabs-web-api` without
 mentioning the MCP server to the user — it is optional, and the loop is identical.
 Three habits matter for research specifically:
 
@@ -126,6 +129,6 @@ Pricing, availability and rankings change by country. When the question is geogr
 pass `location` and say which locale the answer reflects — an unqualified "it costs $9"
 is wrong somewhere.
 
-`search` and `scrape` both take `location` as a two-letter country code (`"DE"`). On `scrape`, `check_empty_geo=True` turns a
+`search` and `scrape` both take `location` as a two-letter country code (`"DE"`); `search_companies` has no `location`, so put the place in its query. On `scrape`, `check_empty_geo=True` turns a
 silent wrong-country result into an error, which is what you want when the whole answer
 hinges on the locale.

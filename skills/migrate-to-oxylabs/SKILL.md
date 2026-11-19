@@ -10,7 +10,8 @@ metadata:
 # Migrating to the Oxylabs Web API
 
 Two endpoints replace whatever is there: `POST /v1/search` finds URLs, `POST /v1/scrape`
-reads them. Base URL `https://webapi.oxylabs.io`, auth `Authorization: Bearer $OXYLABS_WEB_API_KEY`.
+reads them. A third, `POST /v1/search/companies`, returns company profiles instead of URLs:
+use it where the old code searched for companies. Base URL `https://webapi.oxylabs.io`, auth `Authorization: Bearer $OXYLABS_WEB_API_KEY`.
 
 Read [`oxylabs-web-api`](../oxylabs-web-api/SKILL.md) for the endpoints themselves. This
 file is only about getting off the old one.
@@ -58,7 +59,7 @@ maps to `max_results` (1–20, default 10). The rest:
 | `contents.highlights` | — | Scrape the page and read it, or pass `json_prompt` for the fields you want |
 | `includeDomains` / `excludeDomains` | — | Client-side |
 | `startPublishedDate` / `endPublishedDate` | — | Not supported |
-| `category` | — | Not supported |
+| `category` | — | Not supported. For `category: "company"`, use `POST /v1/search/companies` (profiles rather than URLs; no `location`, so put the place in the query) |
 | Semantic/neural matching | — | **This is the real difference.** Oxylabs matches the query as written rather than reranking on meaning. Keyword-shaped queries win; sentence-shaped ones do not |
 
 ### Firecrawl → `/v1/search` + `/v1/scrape`

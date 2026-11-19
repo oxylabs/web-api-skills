@@ -1,8 +1,8 @@
 {
   "name": "oxylabs-web-api",
   "displayName": "Oxylabs Web API",
-  "version": "1.1.1",
-  "description": "Live web search and page reading through the Oxylabs Web API: real SERP results, country-accurate, and pages that a plain fetch cannot retrieve. Runs on the Oxylabs-hosted MCP server with your Web API key.",
+  "version": "1.2.0",
+  "description": "Live web search, page reading and company lookup through the Oxylabs Web API: real SERP results, country-accurate, pages that a plain fetch cannot retrieve, and company profiles. Runs on the Oxylabs-hosted MCP server with your Web API key.",
   "author": {
     "name": "Oxylabs",
     "email": "support@oxylabs.io"
@@ -15,6 +15,7 @@
     "web-api",
     "search",
     "web-search",
+    "company-search",
     "scraping",
     "serp",
     "research",

@@ -1,0 +1,52 @@
+{
+  "name": "oxylabs-web-api",
+  "version": "1.2.0",
+  "description": "Live web search and page reading through the Oxylabs Web API: real SERP results, country-accurate, and pages that a plain fetch cannot retrieve. Runs on the Oxylabs-hosted MCP server with your Web API key.",
+  "author": {
+    "name": "Oxylabs",
+    "email": "support@oxylabs.io",
+    "url": "https://oxylabs.io"
+  },
+  "homepage": "https://github.com/oxylabs/web-api-skills",
+  "repository": "https://github.com/oxylabs/web-api-skills",
+  "license": "MIT",
+  "keywords": [
+    "oxylabs",
+    "web-api",
+    "search",
+    "web-search",
+    "scraping",
+    "serp",
+    "research",
+    "markdown",
+    "anti-bot",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "oxylabs-web-api": {
+      "type": "http",
+      "url": "https://mcp.oxylabs.io/web-api-mcp",
+      "bearer_token_env_var": "OXYLABS_WEB_API_KEY"
+    }
+  },
+  "interface": {
+    "displayName": "Oxylabs Web API",
+    "shortDescription": "Live web search and page reading",
+    "longDescription": "Search the live web and read any page through the Oxylabs Web API: real SERP results from the target country, JS-heavy and bot-protected pages included, Markdown rendered server-side. Includes skills for web research with citations and for migrating from other search APIs. Needs an Oxylabs Web API key in the OXYLABS_WEB_API_KEY environment variable.",
+    "developerName": "Oxylabs",
+    "category": "Research",
+    "capabilities": [
+      "Read"
+    ],
+    "websiteURL": "https://oxylabs.io",
+    "privacyPolicyURL": "https://oxylabs.io/legal/privacy",
+    "defaultPrompt": [
+      "Search the web for the latest news on a topic",
+      "Read this URL and summarize it",
+      "Find companies that compete with a given company"
+    ],
+    "composerIcon": "./.claude-plugin/icon.png",
+    "logo": "./.claude-plugin/icon.png"
+  }
+}

@@ -1,5 +1,16 @@
 # Oxylabs Web API — Claude Code Plugin and Agent Skills
 
+[![Web API](https://github.com/oxylabs/web-api-skills/blob/main/Web%20API%20Skills.png)](https://oxylabs.io/products/web-api?utm_source=github&utm_medium=referral&utm_content=web_api_waitinglist&groupid=877)
+
+<p align="left">
+  <a href="https://dashboard.oxylabs.io"><img src="https://img.shields.io/badge/%F0%9F%9A%80_Get_Started-FF6B35?style=for-the-badge" alt="Get started"></a>
+  <a href="https://developers.oxylabs.io/products/web-api"><img src="https://img.shields.io/badge/%F0%9F%93%9A_Documentation-4A90E2?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://dashboard.oxylabs.io"><img src="https://img.shields.io/badge/%F0%9F%93%8A_Dashboard-2EA44F?style=for-the-badge" alt="Dashboard"></a>
+  <a href="https://discord.gg/Pds3gBmKMH"><img src="https://img.shields.io/badge/%F0%9F%92%AC_Discord-5865F2?style=for-the-badge" alt="Discord"></a>
+  <a href="https://www.youtube.com/@oxylabs"><img src="https://img.shields.io/badge/%E2%96%B6%EF%B8%8F_YouTube-FF0000?style=for-the-badge" alt="YouTube"></a>
+</p>
+
+
 Welcome to the official repository overview for Oxylabs' Web API Skills. This guide is a developer-focused, technical reference covering what Web API Skills do. Skills that teach a coding agent to use the Oxylabs Web API for live web search and web fetch.
 
 This repo works two ways: as a **Claude Code plugin** (the skills plus the Oxylabs-hosted MCP server, set up in one install) or as plain **agent skills** for Claude Code, Cursor, Codex and other skills-aware agents. See [Install](#install).

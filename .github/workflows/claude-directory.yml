@@ -2,8 +2,10 @@
 # The directory takes only text, JSON, YAML and image files from organizations it
 # hasn't verified, and no `context` key in skill front matter, so the branch drops
 # install.sh, the helper script and `context: fork`, and points the skills at raw
-# HTTP instead of the script. The plugin always has the MCP server, so nothing
-# the plugin uses is lost. Everything else on the branch is main as is.
+# HTTP instead of the script. It also drops .codex-plugin, which only Codex reads,
+# so Codex-only changes on main leave the branch as it is. The plugin always has
+# the MCP server, so nothing the plugin uses is lost. Everything else on the
+# branch is main as is.
 name: Build claude-directory branch
 
 on:
@@ -29,7 +31,7 @@ jobs:
       - name: Remove what the directory refuses
         run: |
           git rm -rq install.sh skills/oxylabs-web-api/scripts
-          git rm -rq --ignore-unmatch .github
+          git rm -rq --ignore-unmatch .github .codex-plugin
 
       - name: Point the skills at raw HTTP
         shell: python

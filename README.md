@@ -34,6 +34,20 @@ Cursor takes the same repo as a plugin too (`.cursor-plugin/`): the skills plus 
 MCP server. Install **Oxylabs Web API** from the Cursor Marketplace, then set your key as
 `OXYLABS_WEB_API_KEY` under **Plugins → Configure**.
 
+Codex takes the same repo as a plugin as well (`.codex-plugin/`): the skills plus the same
+hosted MCP server, shared by the Codex CLI, IDE extension and desktop app:
+
+```bash
+codex plugin marketplace add oxylabs/web-api-skills
+codex plugin add oxylabs-web-api@oxylabs-web-api
+```
+
+Codex reads the key from `OXYLABS_WEB_API_KEY` when it starts; without it, the Oxylabs
+tools are missing and no error is shown. On macOS, the desktop app opened from the Dock
+doesn't see your shell profile. See the
+[web-api-mcp README](https://github.com/oxylabs/web-api-mcp#connect-to-the-remote-mcp-server)
+for how to make the key visible to it.
+
 Skills are plain directories, so `git clone` + `./install.sh` (or `--project` for a
 repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 
@@ -42,8 +56,9 @@ repo-local install, or a bare `cp -R skills/* ~/.claude/skills/`) also works.
 1. Log in to the [Oxylabs dashboard](https://dashboard.oxylabs.io).
 2. Create a **Web API** instance — keys from other Oxylabs products don't work here.
 3. Generate an API key on that instance.
-4. For the Claude Code plugin, paste it when Claude Code asks. For skills installed any
-   other way, `export OXYLABS_WEB_API_KEY=<key>`.
+4. For the Claude Code plugin, paste it when Claude Code asks. For the Cursor plugin, set it
+   under **Plugins → Configure**. For the Codex plugin and for skills installed any other
+   way, `export OXYLABS_WEB_API_KEY=<key>`.
 
 Start a new session and run `/skills` — all three skills should be listed.
 

@@ -1,6 +1,6 @@
 # Oxylabs Web API — Claude Code Plugin and Agent Skills
 
-[![Web API](https://github.com/oxylabs/web-api-skills/blob/main/Web%20API%20Skills.png)](https://oxylabs.io/products/web-api?utm_source=github&utm_medium=referral&utm_content=web_api_waitinglist&groupid=877)
+[![Web API](https://github.com/oxylabs/web-api-skills/blob/main/Web%20API%20Skills.png)](https://oxylabs.io/products/web-api?utm_source=github&utm_medium=referral&utm_content=web-api-skills&utm_campaign=banner&groupid=877)
 
 <p align="left">
   <a href="https://dashboard.oxylabs.io"><img src="https://img.shields.io/badge/%F0%9F%9A%80_Get_Started-FF6B35?style=for-the-badge" alt="Get started"></a>
@@ -66,7 +66,7 @@ only to Oxylabs:
 - `https://webapi.oxylabs.io` — the Web API itself, called by the MCP server and, when the
   server isn't available, by the skills over plain HTTP
 
-Nothing is sent anywhere else. See the [Oxylabs privacy policy](https://oxylabs.io/legal/privacy).
+Nothing is sent anywhere else. See the [Oxylabs privacy policy](https://oxylabs.io/legal/privacy?utm_source=github&utm_medium=referral&utm_content=web-api-skills&groupid=877).
 
 ## MCP server (optional, recommended)
 
@@ -99,7 +99,7 @@ install this repo's skills when you also want `migrate-to-oxylabs`, or no server
 
 For detailed configuration, advanced usage, and code examples in multiple languages, check the official documentation:
 
-- [Get started with Web API](https://oxylabs.io/products/web-api)
+- [Get started with Web API](https://oxylabs.io/products/web-api?utm_source=github&utm_medium=referral&utm_content=web-api-skills&groupid=877)
 - [Web API documentation](https://developers.oxylabs.io/products/web-api)
 
 ## License

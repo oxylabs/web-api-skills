@@ -2,15 +2,18 @@
 # The directory takes only text, JSON, YAML and image files from organizations it
 # hasn't verified, and no `context` key in skill front matter, so the branch drops
 # install.sh, the helper script and `context: fork`, and points the skills at raw
-# HTTP instead of the script. It also drops .codex-plugin, which only Codex reads,
-# so Codex-only changes on main leave the branch as it is. The plugin always has
+# HTTP instead of the script. It also drops .codex-plugin, .cursor-plugin and
+# mcp.json, which only Codex and Cursor read; the directory refuses mcp.json
+# because it reads the key from an environment variable. The plugin always has
 # the MCP server, so nothing the plugin uses is lost. Everything else on the
 # branch is main as is.
+#
+# It runs only by hand: each new commit on the branch replaces the version under
+# review in the directory and starts the review over, so rebuild only when a
+# change on main should reach the directory.
 name: Build claude-directory branch
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -31,7 +34,7 @@ jobs:
       - name: Remove what the directory refuses
         run: |
           git rm -rq install.sh skills/oxylabs-web-api/scripts
-          git rm -rq --ignore-unmatch .github .codex-plugin
+          git rm -rq --ignore-unmatch .github .codex-plugin .cursor-plugin mcp.json
 
       - name: Point the skills at raw HTTP
         shell: python
@@ -94,6 +97,10 @@ jobs:
           fi
           if git grep -lI '^#!' -- . ; then
             echo "::error::Files with a #! line are left; the directory refuses them."
+            exit 1
+          fi
+          if git grep -nE '\$\{[A-Z_]+\}' -- '*.json' ; then
+            echo "::error::A JSON file reads an environment variable; the directory wants \${user_config.KEY} instead."
             exit 1
           fi
 
